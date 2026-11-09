@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="kk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#2563eb">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232563eb'/%3E%3Ctext x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3EP%3C/text%3E%3C/svg%3E">
+<title>Smart Parking Simulator</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#6b7785;--bd:#d9e0e7;--ac:#2563eb;--free:#dcfce7;--tk:#fecaca;--rs:#fef08a;--D:#dbeafe;--E:#ede9fe;--road:#e5e9ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161c;--card:#1a222b;--tx:#e6ebf0;--mu:#94a1ae;--bd:#2c3744;--ac:#60a5fa;--free:#14532d;--tk:#7f1d1d;--rs:#713f12;--D:#1e3a5f;--E:#3b2a6b;--road:#222c37}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:14px}
+h1{font-size:20px;margin:0 0 2px}p.s{margin:0 0 12px;color:var(--mu);font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;padding:7px 11px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}button:active{transform:scale(.97)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:10px}
+.st{background:var(--bg);border-radius:8px;padding:6px 9px}.st b{display:block;font-size:18px}.st span{font-size:11px;color:var(--mu)}
+.lotw{overflow-x:auto;padding:6px 0}
+.lot{position:relative;margin:0 52px;min-width:520px;background:var(--road);border-radius:10px;padding:10px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.sp{height:46px;border-radius:6px;border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;cursor:pointer;background:var(--free);position:relative;user-select:none}
+.sp.D:not(.t):not(.r){background:var(--D)}.sp.E:not(.t):not(.r){background:var(--E)}
+.sp.t{background:var(--tk)}.sp.r{background:var(--rs)}
+.gate{position:absolute;top:50%;transform:translateY(-50%);font-size:11px;color:var(--mu);width:48px;text-align:center}
+.cars{position:absolute;inset:10px;pointer-events:none}
+.car{position:absolute;width:28px;height:22px;margin:-11px 0 0 -14px;border-radius:6px;background:var(--ac);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px #0004}
+.leg{font-size:12px;color:var(--mu);margin-top:6px}
+.lg{display:flex;gap:10px;flex-wrap:wrap}.lg i{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid var(--bd);vertical-align:-1px;margin-right:3px}
+.cols{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:800px){.cols{grid-template-columns:1.2fr 1fr}}
+#log{height:150px;overflow:auto;font-size:12px;background:var(--bg);border-radius:8px;padding:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:5px 6px;border-bottom:1px solid var(--bd);text-align:right}th:first-child,td:first-child{text-align:left}
+td.w{font-weight:700;color:#16a34a}.sc{overflow-x:auto}
+</style></head><body>
+<h1>🅿️ Smart Parking Simulator</h1>
+<p class="s">Ақылды автотұрақ: кіру/шығу, брондау, арнайы орындар, кезек және екі стратегияны салыстыру</p>
+
+<div class="card">
+ <div class="row">
+  <select id="strat"><option value="near">Ең жақын орын</option><option value="bal">Жүктемені теңестіру</option></select>
+  <select id="scn"><option>20</option><option selected>50</option><option>100</option></select>
+  <button class="p" id="run">▶ Бастау</button><button id="pause">⏸ Тоқтату</button><button id="reset">↺ Қайта</button>
+  <label>Жылдамдық <select id="spd"><option value="1">×1</option><option value="2" selected>×2</option><option value="5">×5</option><option value="12">×12</option></select></label>
+ </div>
+ <div class="row" style="margin-top:8px">
+  <button id="addN">🚗 Көлік</button><button id="addD">♿ Мүгедек көлігі</button><button id="addE">⚡ Электромобиль</button>
+  <button id="test">🧪 Брондау мерзімін тексеру</button>
+ </div>
+ <div class="stats" id="stats"></div>
+</div>
+
+<div class="card">
+ <div class="lotw"><div class="lot" id="lot"><div class="gate" style="left:-60px">➡ Кіру</div><div class="gate" style="right:-60px">Шығу ➡</div>
+  <div class="grid" id="grid"></div><div class="cars" id="cars"></div></div></div>
+ <div class="leg lg"><span><i style="background:var(--free)"></i>бос</span><span><i style="background:var(--tk)"></i>бос емес</span><span><i style="background:var(--rs)"></i>брондалған</span><span><i style="background:var(--D)"></i>♿ арнайы</span><span><i style="background:var(--E)"></i>⚡ зарядтау</span><span>Бос орынды басып 15 тактке брондаңыз</span></div>
+</div>
+
+<div class="cols">
+ <div class="card"><b>Кезек пен оқиғалар</b><div class="leg" id="qv"></div><div id="log"></div></div>
+ <div class="card"><b>Стратегияларды салыстыру</b>
+  <div class="row" style="margin:6px 0"><button class="p" id="cmp">📊 Салыстыру</button><span class="leg">5 кездейсоқ сынақтың орташасы</span></div>
+  <div class="sc"><table id="tbl"></table></div></div>
+</div>
+
+<script>
+const ROWS=4,COLS=10,N=ROWS*COLS,EY=1.5,TTL=12;
+const $=id=>document.getElementById(id);
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const dist=s=>s.c+1+Math.abs(s.r-EY);
+function mk(){const a=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const e=r%3===0;a.push({id:r*COLS+c+1,r,c,type:c===0&&e?'D':c===COLS-1&&e?'E':'N',state:'free',car:null,exp:0})}return a}
+function gen(n,seed){const R=rng(seed),a=[];for(let i=0;i<n;i++){const x=R(),res=R()<.2;const arrive=Math.floor(R()*150);a.push({id:i+1,type:x<.08?'D':x<.16?'E':'N',arrive,dur:30+Math.floor(R()*70),res,noShow:res&&R()<.25,book:res?Math.max(0,arrive-8):arrive,state:'new',bk:false})}return a}
+class Sim{
+ constructor(strat,n,seed){this.strat=strat;this.t=0;this.spots=mk();this.cars=gen(n,seed);this.queue=[];this.logs=[];this.score=0;this.st={served:0,rel:0,maxQ:0,fill:0,peak:0,search:0,n:0}}
+ log(m){this.logs.push(`[${this.t}] ${m}`)}
+ pick(type){const f=this.spots.filter(s=>s.state==='free'&&s.type===type);if(!f.length)return null;
+  if(this.strat==='near')return f.reduce((a,b)=>dist(b)<dist(a)?b:a);
+  const occ=Array(ROWS).fill(0);this.spots.forEach(s=>{if(s.state!=='free')occ[s.r]++});
+  return f.reduce((a,b)=>(occ[b.r]-occ[a.r]||dist(b)-dist(a))<0?b:a)}
+ go(c,s){s.state='taken';s.car=c;c.spot=s;c.state='drive';c.t0=this.t;c.tr=Math.max(1,Math.ceil(dist(s)/2));c.parkAt=this.t+c.tr;c.leaveT=c.parkAt+c.dur;this.st.search+=this.t-c.arrive+c.tr;this.st.n++}
+ done(){return this.cars.every(c=>c.state==='gone')&&!this.queue.length}
+ step(){const t=++this.t,S=this.spots;
+  for(const c of this.cars){
+   if(c.state==='drive'&&t>=c.parkAt)c.state='park';
+   if(c.state==='park'&&t>=c.leaveT){c.state='leave';c.ls=t;c.spot.state='free';c.spot.car=null;this.st.served++;this.score+=10;this.log(`🚗 №${c.id} шықты, №${c.spot.id} орны бос`)}
+   else if(c.state==='leave'&&t>=c.ls+3)c.state='gone'}
+  for(const s of S)if(s.state==='res'&&t>=s.exp){if(s.car)s.car.state='gone';s.state='free';s.car=null;this.st.rel++;this.log(`⏱ №${s.id} брондау мерзімі өтті — орын қайта босатылды`)}
+  for(const c of this.cars)if(c.state==='new'&&c.res&&!c.bk&&t>=c.book){c.bk=true;const s=this.pick(c.type);if(s){s.state='res';s.car=c;s.exp=t+TTL;c.rs=s;this.log(`📅 №${s.id} орны брондалды`)}}
+  for(const c of this.cars)if(c.state==='new'&&t>=c.arrive&&(!c.res||c.bk)){
+   if(c.rs&&c.noShow)continue;
+   if(c.rs)this.go(c,c.rs);else{c.state='queue';this.queue.push(c);this.log(`⏳ №${c.id} ${c.type==='N'?'':c.type==='D'?'♿ ':'⚡ '}кезекке тұрды`)}}
+  this.queue=this.queue.filter(c=>{const s=this.pick(c.type);if(s){this.go(c,s);return false}return true});
+  const occ=S.filter(s=>s.state==='taken').length/N*100;
+  this.st.fill+=occ;this.st.peak=Math.max(this.st.peak,occ);this.st.maxQ=Math.max(this.st.maxQ,this.queue.length);
+  this.score-=this.queue.length*0.2}
+}
+function bench(strat,n){let a=0,q=0,f=0,p=0,r=0,k=5;for(let i=0;i<k;i++){const s=new Sim(strat,n,100+i*7);while(!s.done()&&s.t<4000)s.step();a+=s.st.search/s.st.n;q+=s.st.maxQ;f+=s.st.fill/s.t;p+=s.st.peak;r+=s.st.rel}return{a:a/k,q:q/k,f:f/k,p:p/k,r:r/k}}
+function compare(){const rows=[[ 'Сценарий','Стратегия','Іздеу, такт','Макс. кезек','Орт. толу %','Пик %']];let h='<tr>'+rows[0].map(x=>`<th>${x}</th>`).join('')+'</tr>';
+ for(const n of[20,50,100]){const A=bench('near',n),B=bench('bal',n);
+  const cell=(x,y,lowBetter,fmt)=>[x,y].map((v,i)=>{const o=i?x:y;const w=lowBetter?v<o:v>o;return `<td class="${w?'w':''}">${fmt(v)}</td>`});
+  const m=[['a',1],['q',1],['f',0],['p',0]];
+  [['Ең жақын',A,0],['Теңестіру',B,1]].forEach(([nm,R,i])=>{h+=`<tr><td>${i?'':n+' көлік'}</td><td>${nm}</td>`+m.map(([k,l])=>cell(A[k],B[k],l,v=>v.toFixed(1))[i]).join('')+'</tr>'})}
+ $('tbl').innerHTML=h}
+
+let sim,run=false,spd=2,lastT=0,els={},carEls={};
+function build(){$('grid').innerHTML='';els={};sim.spots.forEach(s=>{const d=document.createElement('div');d.className='sp';d.onclick=()=>{if(s.state==='free'){s.state='res';s.exp=sim.t+15;s.car=null;sim.log(`📅 №${s.id} орны қолмен брондалды (15 такт)`)}};$('grid').appendChild(d);els[s.id]=d});$('cars').innerHTML='';carEls={}}
+function reset(){sim=new Sim($('strat').value,+$('scn').value,42);build();run=false;lastT=performance.now();draw(0)}
+function P(s){const e=els[s.id];return{x:e.offsetLeft+e.offsetWidth/2,y:e.offsetTop+e.offsetHeight/2}}
+function draw(fr){const S=sim.spots;
+ S.forEach(s=>{const e=els[s.id];e.className='sp '+s.type+(s.state==='taken'?' t':s.state==='res'?' r':'');
+  e.textContent=s.state==='res'?`📅 ${Math.max(0,s.exp-sim.t)}`:s.type==='D'?'♿':s.type==='E'?'⚡':s.id});
+ const tf=sim.t+fr,g=$('grid'),mid=(els[11].offsetTop+els[21].offsetTop+els[11].offsetHeight)/2,W=g.offsetWidth;
+ for(const c of sim.cars){const on=['drive','park','leave'].includes(c.state);let e=carEls[c.id];
+  if(!on){if(e){e.remove();delete carEls[c.id]}continue}
+  if(!e){e=document.createElement('div');e.className='car';e.textContent=c.type==='D'?'♿':c.type==='E'?'⚡':'🚗';$('cars').appendChild(e);carEls[c.id]=e}
+  const sp=P(c.spot);let x,y;
+  if(c.state==='drive'){const p=Math.min(1,(tf-c.t0)/c.tr);x=-30+(sp.x+30)*p;y=mid+(sp.y-mid)*p}
+  else if(c.state==='park'){x=sp.x;y=sp.y}
+  else{const p=Math.min(1,(tf-c.ls)/3);x=sp.x+(W+40-sp.x)*p;y=sp.y+(mid-sp.y)*p}
+  e.style.left=x+'px';e.style.top=y+'px';e.style.background=c.state==='park'?'#64748b':'var(--ac)'}
+ const st=sim.st,occ=S.filter(s=>s.state==='taken').length;
+ const items=[['Такт',sim.t],['Толу',Math.round(occ/N*100)+'%'],['Кезек',sim.queue.length],['Макс. кезек',st.maxQ],['Қызмет көрсетілді',st.served],['Брондау босатылды',st.rel],['Орт. іздеу',(st.n?st.search/st.n:0).toFixed(1)],['Ұпай',Math.round(sim.score)]];
+ $('stats').innerHTML=items.map(([a,b])=>`<div class="st"><b>${b}</b><span>${a}</span></div>`).join('');
+ $('qv').textContent=sim.queue.length?'Кезекте: '+sim.queue.map(c=>'№'+c.id+(c.type==='N'?'':c.type==='D'?'♿':'⚡')).join(', '):'Кезек бос'+(sim.done()?' · Симуляция аяқталды ✅':'');
+ const L=$('log');L.innerHTML=sim.logs.slice(-40).reverse().join('<br>');}
+let acc=0;
+function loop(now){if(run&&!sim.done()){const ms=600/spd;if(now-lastT>=ms){const k=Math.min(3,Math.floor((now-lastT)/ms));for(let i=0;i<k;i++)sim.step();lastT=now}}else lastT=now;
+ draw(run?Math.min(1,(now-lastT)/(600/spd)):0);requestAnimationFrame(loop)}
+$('run').onclick=()=>{run=true;lastT=performance.now()};$('pause').onclick=()=>run=false;$('reset').onclick=reset;
+$('strat').onchange=reset;$('scn').onchange=reset;$('spd').onchange=e=>spd=+e.target.value;
+function add(t){sim.cars.push({id:sim.cars.length+1,type:t,arrive:sim.t,dur:30+Math.floor(Math.random()*40),res:false,noShow:false,book:sim.t,state:'new',bk:false});if(!run){sim.step()}}
+$('addN').onclick=()=>add('N');$('addD').onclick=()=>add('D');$('addE').onclick=()=>add('E');
+$('test').onclick=()=>{const s=sim.pick('N');if(!s)return sim.log('Бос орын жоқ');s.state='res';s.exp=sim.t+5;s.car=null;sim.log(`🧪 Тест: №${s.id} орны 5 тактке брондалды, көлік келмейді`);run=true};
+$('cmp').onclick=compare;
+reset();compare();requestAnimationFrame(loop);
+</script></body></html>
